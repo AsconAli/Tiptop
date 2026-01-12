@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#22c55e">
+    <meta name="description" content="Rural Transport Coordination System">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <title>Transport Coordination</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(to bottom, #dcfce7, #bbf7d0);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            padding: 8px;
+            display: none;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            transition: background 0.3s;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 200;
+        }
+
+        .mobile-menu.active {
+            display: block;
+        }
+
+        .mobile-menu-content {
+            background: white;
+            width: 80%;
+            max-width: 300px;
+            height: 100%;
+            padding: 24px;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+
+        .mobile-menu.active .mobile-menu-content {
+            transform: translateX(0);
+        }
+
+        .mobile-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .close-menu {
+            background: none;
+            border: none;
+            font-size: 32px;
+            cursor: pointer;
+            color: #374151;
+        }
+
+        .mobile-menu-items {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .mobile-menu-items a {
+            color: #374151;
+            text-decoration: none;
+            padding: 16px;
+            border-radius: 8px;
+            background: #f3f4f6;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            padding: 16px;
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 32px;
+            color: #1f2937;
+        }
+
+        h2 {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #1f2937;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        h3 {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: #374151;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 24px;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+
+        .btn-success {
+            background: #22c55e;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #16a34a;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .waiting-button {
+            background: #22c55e;
+            color: white;
+            padding: 48px;
+            font-size: 28px;
+            border-radius: 50%;
+            width: 200px;
+            height: 200px;
+            margin: 64px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(34, 197, 94, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        .info-box {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .info-box-blue {
+            background: #dbeafe;
+        }
+
+        .info-box-green {
+            background: #dcfce7;
+        }
+
+        .info-label {
+            font-size: 14px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .stat-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .stat-box-yellow {
+            background: #fef3c7;
+        }
+
+        .stat-box-blue {
+            background: #dbeafe;
+        }
+
+        .stat-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stat-count {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .toggle-label {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .toggle {
+            width: 64px;
+            height: 32px;
+            background: #d1d5db;
+            border-radius: 16px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle.active {
+            background: #22c55e;
+        }
+
+        .toggle-thumb {
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            transition: transform 0.3s ease;
+        }
+
+        .toggle.active .toggle-thumb {
+            transform: translateX(32px);
+        }
+
+        .road-section {
+            border-left: 4px solid #3b82f6;
+            padding-left: 16px;
+            margin-bottom: 16px;
+        }
+
+        .road-title {
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .point-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+        }
+
+        .point-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .point-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .demand-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .demand-high {
+            background: #22c55e;
+        }
+
+        .demand-medium {
+            background: #eab308;
+        }
+
+        .demand-low {
+            background: #ef4444;
+        }
+
+        .point-count {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 64px 0;
+        }
+
+        .loading-spinner {
+            font-size: 64px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .lang-toggle {
+            text-align: center;
+            margin-top: 24px;
+            padding: 12px;
+            background: transparent;
+            border: none;
+            color: #6b7280;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        #map {
+            width: 100%;
+            height: 400px;
+            border-radius: 12px;
+            margin-top: 16px;
+            z-index: 1;
+        }
+
+        .leaflet-popup-content-wrapper {
+            border-radius: 8px;
+        }
+
+        .vehicle-popup {
+            text-align: center;
+            padding: 4px;
+        }
+
+        .vehicle-popup strong {
+            display: block;
+            margin-bottom: 4px;
+            color: #1f2937;
+        }
+
+        .progress-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .progress-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #374151;
+        }
+
+        .progress-percentage {
+            font-size: 20px;
+            font-weight: bold;
+            color: #22c55e;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 12px;
+            background: #e5e7eb;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+            position: relative;
+        }
+
+        .progress-bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .progress-points {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-top: 16px;
+        }
+
+        .progress-point {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .progress-point-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: #d1d5db;
+            border: 3px solid white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 2;
+            transition: all 0.3s ease;
+        }
+
+        .progress-point.completed .progress-point-dot {
+            background: #22c55e;
+        }
+
+        .progress-point.active .progress-point-dot {
+            background: #3b82f6;
+            transform: scale(1.3);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+        }
+
+        .progress-point-label {
+            font-size: 11px;
+            color: #6b7280;
+            text-align: center;
+            margin-top: 8px;
+            max-width: 80px;
+            line-height: 1.2;
+        }
+
+        .progress-point.completed .progress-point-label {
+            color: #22c55e;
+            font-weight: 600;
+        }
+
+        .progress-point.active .progress-point-label {
+            color: #3b82f6;
+            font-weight: 600;
+        }
+
+        .route-line {
+            position: absolute;
+            top: 8px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e5e7eb;
+            z-index: 1;
+        }
+
+        .route-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .route-info-item {
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .route-info-label {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .route-info-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1f2937;
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            color: white;
+            padding: 32px 16px 16px;
+            margin-top: auto;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 32px;
+            margin-bottom: 24px;
+        }
+
+        .footer-section h4 {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 16px;
+            color: #22c55e;
+        }
+
+        .footer-section p, .footer-section a {
+            font-size: 14px;
+            color: #d1d5db;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .footer-section a:hover {
+            color: #22c55e;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 24px;
+            border-top: 1px solid #374151;
+            font-size: 14px;
+            color: #9ca3af;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
+
+            .nav-menu {
+                display: none;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <span>🚐</span>
+                <span id="headerTitle">Transport System</span>
+            </div>
+            <button class="menu-toggle" onclick="toggleMobileMenu()">☰</button>
+            <nav class="nav-menu">
+                <a href="#" onclick="showHome()"><span id="navHome">Home</span></a>
+                <a href="#" onclick="toggleLanguage()"><span id="navLang">বাংলা</span></a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="mobile-menu">
+        <div class="mobile-menu-content">
+            <div class="mobile-menu-header">
+                <div class="logo">
+                    <span>🚐</span>
+                    <span id="mobileHeaderTitle">Transport</span>
+                </div>
+                <button class="close-menu" onclick="toggleMobileMenu()">×</button>
+            </div>
+            <div class="mobile-menu-items">
+                <a href="#" onclick="showHome(); toggleMobileMenu();">
+                    <span>🏠</span>
+                    <span id="mobileNavHome">Home</span>
+                </a>
+                <a href="#" onclick="toggleLanguage(); toggleMobileMenu();">
+                    <span>🌐</span>
+                    <span id="mobileNavLang">Change Language</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Back Button -->
+        <button id="backButton" class="back-button" onclick="goBack()">←</button>
+        
+        <div class="container">
+            <!-- User Type Selection Screen -->
+            <div id="userTypeScreen" class="screen active">
+                <div class="card">
+                    <h1 id="selectUserText">Select User Type</h1>
+                    <button class="btn btn-primary" onclick="selectUserType('passenger')">
+                        <span>👥</span>
+                        <span id="passengerText">Passenger</span>
+                    </button>
+                    <button class="btn btn-success" onclick="selectUserType('driver')" style="margin-top: 16px;">
+                        <span>🚐</span>
+                        <span id="driverText">Driver</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Passenger Waiting Screen -->
+            <div id="passengerWaitingScreen" class="screen">
+                <div style="text-align: center; margin-top: 80px;">
+                    <div style="font-size: 80px; margin-bottom: 32px;">📍</div>
+                    <button class="waiting-button" onclick="startWaiting()">
+                        <span>🟢<br><span id="waitingText">I'm Waiting</span></span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Passenger Loading Screen -->
+            <div id="passengerLoadingScreen" class="screen">
+                <div class="loading">
+                    <div class="loading-spinner">🧭</div>
+                    <p id="detectingText" style="font-size: 20px; color: #374151; margin-top: 16px;">Detecting your location...</p>
+                </div>
+            </div>
+
+            <!-- Passenger Status Screen -->
+            <div id="passengerStatusScreen" class="screen">
+                <div class="card">
+                    <h2>
+                        <span>📍</span>
+                        <span id="yourLocationText">Your Location</span>
+                    </h2>
+                    <div class="info-box info-box-blue">
+                        <div class="info-label" id="roadLabelText">Road</div>
+                        <div class="info-value" id="roadValue">-</div>
+                    </div>
+                    <div class="info-box info-box-green">
+                        <div class="info-label" id="pickupPointLabelText">Pickup Point</div>
+                        <div class="info-value" id="pickupPointValue">-</div>
+                    </div>
+                    <button class="btn btn-danger" onclick="cancelWaiting()" style="margin-top: 12px;">
+                        ✖️ <span id="cancelWaitingText">Cancel Waiting</span>
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h3 id="liveStatusText">Live Status</h3>
+                    <div class="stat-box stat-box-yellow">
+                        <div class="stat-left">
+                            <span class="stat-icon">👥</span>
+                            <span id="waitingHereText">Waiting here</span>
+                        </div>
+                        <span class="stat-count" id="waitingCount">0</span>
+                    </div>
+                    <div class="stat-box stat-box-blue">
+                        <div class="stat-left">
+                            <span class="stat-icon">🚐</span>
+                            <span id="vehiclesComingText">Vehicles coming</span>
+                        </div>
+                        <span class="stat-count" id="vehiclesCount">0</span>
+                    </div>
+                </div>
+
+                <div id="progressSection" style="display: none;">
+                    <div class="progress-container">
+                        <div class="progress-header">
+                            <span class="progress-title" id="routeProgressTitle">Route Progress</span>
+                            <span class="progress-percentage" id="progressPercentage">0%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar-fill" id="progressBarFill" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-points" id="progressPoints">
+                            <div class="route-line"></div>
+                        </div>
+                        <div class="route-info">
+                            <div class="route-info-item">
+                                <div class="route-info-label" id="currentStopLabel">Current Stop</div>
+                                <div class="route-info-value" id="currentStopValue">-</div>
+                            </div>
+                            <div class="route-info-item">
+                                <div class="route-info-label" id="stopsRemainingLabel">Stops Remaining</div>
+                                <div class="route-info-value" id="stopsRemainingValue">-</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 id="liveVehiclesText">Live Vehicles on Road</h3>
+                    <div id="map"></div>
+                </div>
+            </div>
+
+            <!-- Driver Home Screen -->
+            <div id="driverHomeScreen" class="screen">
+                <div class="card">
+                    <div style="background: #fef3c7; padding: 12px; border-radius: 8px; margin-bottom: 16px; display: none;" id="driverLocationDisplay">
+                        <div style="font-size: 14px; color: #92400e; text-align: center;">
+                            <span id="waitingAtText">Waiting at:</span> <strong id="driverCurrentLocation">-</strong>
+                        </div>
+                    </div>
+
+                    <div class="toggle-container">
+                        <span class="toggle-label" id="availabilityText">Available</span>
+                        <div class="toggle" id="availabilityToggle" onclick="toggleAvailability()">
+                            <div class="toggle-thumb"></div>
+                        </div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-secondary" id="pickupBtn" onclick="setLocation('pickup')">
+                            📍 <span id="atPickupText">At Pickup</span>
+                        </button>
+                        <button class="btn btn-secondary" id="roadBtn" onclick="setLocation('road')">
+                            🛣️ <span id="onRoadText">On Road</span>
+                        </button>
+                    </div>
+
+                    <div id="pickupPointSelector" style="display: none; margin-bottom: 16px;">
+                        <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #374151;" id="selectPickupLabel">Select Pickup Point:</label>
+                        <select id="pickupPointSelect" onchange="updateDriverPickupPoint()" style="width: 100%; padding: 12px; border-radius: 8px; border: 2px solid #e5e7eb; font-size: 16px;">
+                            <option value="">Choose a point...</option>
+                        </select>
+                    </div>
+
+                    <button class="btn btn-success" id="tripStartBtn" onclick="toggleTrip()">
+                        🚐 <span id="tripStartText">Start Trip</span>
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h3 id="demandSummaryText">Demand Summary</h3>
+                    <div id="demandContainer"></div>
+                </div>
+            </div>
+
+            <!-- Error Display -->
+            <div id="errorMessage" class="error-message" style="display: none;"></div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-grid">
+                <div class="footer-section">
+                    <h4 id="footerAbout">About</h4>
+                    <p id="footerAboutText">Rural transport coordination system connecting passengers and drivers between Lalsora and Ratabari.</p>
+                </div>
+                <div class="footer-section">
+                    <h4 id="footerContact">Contact</h4>
+                    <p id="footerContactText">For support and inquiries</p>
+                    <a href="mailto:support@transport.local">support@transport.local</a>
+                </div>
+                <div class="footer-section">
+                    <h4 id="footerRoutes">Routes</h4>
+                    <p>Road 1: Lalchara - Ratabari</p>
+                    <p>Road 2: Lalchara - Ratabari</p>
+                    <p>Road 3: South Muliala - Ratabari</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p id="footerCopyright">© 2026 Rural Transport System. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getFirestore, collection, doc, setDoc, getDoc, getDocs, query, where, serverTimestamp, GeoPoint } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyD1MkaONYzXedkDG1Nr6xJa_qixyYGJ4xE",
+          authDomain: "automanager-d6386.firebaseapp.com",
+          projectId: "automanager-d6386",
+          storageBucket: "automanager-d6386.firebasestorage.app",
+          messagingSenderId: "22511740771",
+          appId: "1:22511740771:web:deaff6636f12ef53605556",
+          measurementId: "G-ZCR9JLZLVT"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        window.db = db;
+        window.firestoreModules = { collection, doc, setDoc, getDoc, getDocs, query, where, serverTimestamp, GeoPoint };
+
+        const ROADS = {
+            road1: { id: 'road1', name: 'Road 1', name_bn: 'রাস্তা ১' },
+            road2: { id: 'road2', name: 'Road 2', name_bn: 'রাস্তা ২' },
+            road3: { id: 'road3', name: 'Road 3', name_bn: 'রাস্তা ৩' }
+        };
+
+        const PICKUP_POINTS = [
+            { id: 'r1p1', road_id: 'road1', name: 'Lalchara Jame Masjid', name_bn: 'লালচারা জামে মসজিদ', lat: 24.8520, lng: 91.8680, radius: 200 },
+            { id: 'r1p2', road_id: 'road1', name: 'Eidgah', name_bn: 'ঈদগাহ', lat: 24.8543, lng: 91.8712, radius: 200 },
+            { id: 'r1p3', road_id: 'road1', name: 'Khilua', name_bn: 'খিলুয়া', lat: 24.8567, lng: 91.8745, radius: 200 },
+            { id: 'r1p4', road_id: 'road1', name: 'Goru Bazar', name_bn: 'গরু বাজার', lat: 24.8590, lng: 91.8778, radius: 200 },
+            { id: 'r1p5', road_id: 'road1', name: 'Hospital', name_bn: 'হাসপাতাল', lat: 24.8610, lng: 91.8800, radius: 200 },
+            { id: 'r1p6', road_id: 'road1', name: 'Ratabari', name_bn: 'রাটাবাড়ী', lat: 24.8635, lng: 91.8830, radius: 200 },
+            
+            { id: 'r2p1', road_id: 'road2', name: 'Lalchara Jame Masjid', name_bn: 'লালচারা জামে মসজিদ', lat: 24.8520, lng: 91.8680, radius: 200 },
+            { id: 'r2p2', road_id: 'road2', name: 'Donogori Cross', name_bn: 'দনগোরি ক্রস', lat: 24.8545, lng: 91.8705, radius: 200 },
+            { id: 'r2p3', road_id: 'road2', name: 'Puja Mandob', name_bn: 'পূজা মণ্ডপ', lat: 24.8570, lng: 91.8735, radius: 200 },
+            { id: 'r2p4', road_id: 'road2', name: 'Muliala', name_bn: 'মুলিয়ালা', lat: 24.8595, lng: 91.8765, radius: 200 },
+            { id: 'r2p5', road_id: 'road2', name: 'Bethubari', name_bn: 'বেঁথুবাড়ী', lat: 24.8615, lng: 91.8795, radius: 200 },
+            { id: 'r2p6', road_id: 'road2', name: 'Ratabari', name_bn: 'রাটাবাড়ী', lat: 24.8635, lng: 91.8830, radius: 200 },
+            
+            { id: 'r3p1', road_id: 'road3', name: 'South Muliala', name_bn: 'দক্ষিণ মুলিয়ালা', lat: 24.8500, lng: 91.8660, radius: 200 },
+            { id: 'r3p2', road_id: 'road3', name: 'Donogori Cross', name_bn: 'দনগোরি ক্রস', lat: 24.8530, lng: 91.8690, radius: 200 },
+            { id: 'r3p3', road_id: 'road3', name: 'Khoiya Bagan', name_bn: 'খৈয়া বাগান', lat: 24.8560, lng: 91.8720, radius: 200 },
+            { id: 'r3p4', road_id: 'road3', name: 'Sadhu Tilla', name_bn: 'সাধু টিলা', lat: 24.8585, lng: 91.8750, radius: 200 },
+            { id: 'r3p5', road_id: 'road3', name: 'Goru Bazar', name_bn: 'গরু বাজার', lat: 24.8605, lng: 91.8780, radius: 200 },
+            { id: 'r3p6', road_id: 'road3', name: 'Ratabari', name_bn: 'রাটাবাড়ী', lat: 24.8635, lng: 91.8830, radius: 200 }
+        ];
+
+        window.ROADS = ROADS;
+        window.PICKUP_POINTS = PICKUP_POINTS;
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(err => {
+                console.log('Service Worker registration failed:', err);
+            });
+        }
+    </script>
+
+    <script src="app.js"></script>
+</body>
+</html>
